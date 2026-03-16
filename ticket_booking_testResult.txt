@@ -1,0 +1,128 @@
+1. For ticket booking:
+----------------------
+request:
+POST http://localhost:8080/bookings
+{
+    "shows_Id":1,
+    "seats": ["A1","A2"]
+}
+
+response: 200 ok
+{
+    "booking_Id": 5,
+    "totalPrice": 400.0,
+    "status": "CONFIRMED"
+}
+
+request:
+{
+    "shows_Id":1,
+    "seats": ["A1","A2"]
+}
+
+response: 409 conflict
+Seat A1 is already booked. Please choose another seat.
+
+
+2. browsing movies:
+------------------
+Request: based on city
+GET http://localhost:8080/browse/city/Ahmedabad
+
+response: 200 ok
+[
+    {
+        "id": 1,
+        "movie": {
+            "id": 1,
+            "name": "Superhero",
+            "language": "English",
+            "genre": "Action"
+        },
+        "price": 200.0,
+        "showTime": "2026-03-14T10:30:00",
+        "theatre": {
+            "city": "Ahmedabad",
+            "id": 1
+        }
+    },
+    {
+        "id": 2,
+        "movie": {
+            "id": 2,
+            "name": "Ramayana",
+            "language": "Hindi",
+            "genre": "Story"
+        },
+        "price": 180.0,
+        "showTime": "2026-03-15T14:00:00",
+        "theatre": {
+            "city": "Ahmedabad",
+            "id": 1
+        }
+    },
+    {
+        "id": 4,
+        "movie": {
+            "id": 1,
+            "name": "Superhero",
+            "language": "English",
+            "genre": "Action"
+        },
+        "price": 150.0,
+        "showTime": "2026-03-16T09:00:00",
+        "theatre": {
+            "city": "Ahmedabad",
+            "id": 1
+        }
+    },
+    {
+        "id": 3,
+        "movie": {
+            "id": 1,
+            "name": "Superhero",
+            "language": "English",
+            "genre": "Action"
+        },
+        "price": 200.0,
+        "showTime": "2026-03-16T16:30:00",
+        "theatre": {
+            "city": "Ahmedabad",
+            "id": 2
+        }
+    }
+]
+
+request: based on language
+
+GET http://localhost:8080/browse/language/english
+
+response: 200 Ok
+[
+    {
+        "id": 1,
+        "name": "Superhero",
+        "language": "English",
+        "genre": "Action"
+    }
+]
+
+request: based on genre
+GET http://localhost:8080/browse/genre/story
+
+response: 200 ok
+[
+    {
+        "id": 3,
+        "name": "Ramayana",
+        "language": "Hindi",
+        "genre": "Story"
+    }
+]
+
+request: when genre doesn't exists
+GET http://localhost:8080/browse/genre/drama
+
+response: 404 not found
+Movies in genre 'drama' are not available.
+
