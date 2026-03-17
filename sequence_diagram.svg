@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+  <style>
+    .actor { font: 14px Arial, Helvetica, sans-serif; font-weight: bold; }
+    .lifeline { stroke: #888; stroke-width: 1.5; stroke-dasharray: 4 6; }
+    .box { fill: #f8fafc; stroke: #333; stroke-width: 1; rx:4; }
+    .arrow { stroke: #111; stroke-width: 1.8; fill: none; marker-end: url(#arrowhead); }
+    .label { font: 12px Arial, Helvetica, sans-serif; fill: #111; }
+    .note { font: 11px Arial, Helvetica, sans-serif; fill: #b33; }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#111" />
+    </marker>
+  </defs>
+
+  <!-- Participants -->
+  <g transform="translate(40,20)">
+    <g transform="translate(0,0)"><rect class="box" x="0" y="0" width="110" height="28" /><text class="actor" x="55" y="19" text-anchor="middle">Client</text></g>
+    <g transform="translate(160,0)"><rect class="box" x="0" y="0" width="140" height="28" /><text class="actor" x="70" y="19" text-anchor="middle">BookingController</text></g>
+    <g transform="translate(340,0)"><rect class="box" x="0" y="0" width="120" height="28" /><text class="actor" x="60" y="19" text-anchor="middle">BookingService</text></g>
+    <g transform="translate(640,0)"><rect class="box" x="0" y="0" width="110" height="28" /><text class="actor" x="55" y="19" text-anchor="middle">SeatsRepo</text></g>
+    <g transform="translate(780,0)"><rect class="box" x="0" y="0" width="100" height="28" /><text class="actor" x="50" y="19" text-anchor="middle">ShowsRepo</text></g>
+    <g transform="translate(900,0)"><rect class="box" x="0" y="0" width="120" height="28" /><text class="actor" x="60" y="19" text-anchor="middle">BookingsRepo</text></g>
+    <g transform="translate(1040,0)"><rect class="box" x="0" y="0" width="120" height="28" /><text class="actor" x="60" y="19" text-anchor="middle">BookingSeatsRepo</text></g>
+  </g>
+
+  <!-- Lifelines -->
+  <g transform="translate(95,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(235,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(395,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(675,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(815,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(960,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+  <g transform="translate(1100,60)">
+    <line x1="0" y1="0" x2="0" y2="360" class="lifeline" />
+  </g>
+
+  <!-- Arrows -->
+  <!-- Client -> Controller -->
+  <line x1="95" y1="40" x2="235" y2="40" class="arrow" />
+  <text class="label" x="165" y="30" text-anchor="middle">POST /bookings {shows_Id, seats[]}</text>
+
+  <!-- Controller -> Service -->
+  <line x1="235" y1="90" x2="395" y2="90" class="arrow" />
+  <text class="label" x="315" y="80" text-anchor="middle">bookTickets(request)</text>
+
+  <!-- Service -> ShowsRepo (find show) -->
+  <line x1="395" y1="140" x2="815" y2="140" class="arrow" />
+  <text class="label" x="605" y="130" text-anchor="middle">ShowsRepo.findById(shows_Id)</text>
+
+  <!-- Service -> SeatsRepo (find seats) -->
+  <line x1="395" y1="190" x2="675" y2="190" class="arrow" />
+  <text class="label" x="535" y="180" text-anchor="middle">SeatsRepo.findByShows_IdAndSeatNumberIn</text>
+
+  <!-- Optimistic locking: Service reads seats (with version) -->
+  <text class="label" x="540" y="230" text-anchor="middle">Seats entities contain @Version field (version)</text>
+
+  <!-- Service -> SeatsRepo (attempt to update status -> BOOKED) -->
+  <line x1="395" y1="260" x2="675" y2="260" class="arrow" />
+  <text class="label" x="535" y="250" text-anchor="middle">SeatsRepo.saveAll(updated seats with incremented version)</text>
+
+  <!-- Version conflict path -->
+  <line x1="675" y1="300" x2="395" y2="300" class="arrow" />
+  <text class="label" x="535" y="290" text-anchor="middle">OptimisticLockingFailureException on concurrent update</text>
+  <text class="note" x="535" y="310" text-anchor="middle">Service may retry read->modify->save up to N times, or fail with error</text>
+
+  <!-- Service internal: calculate price & discounts -->
+  <text class="label" x="540" y="340" text-anchor="middle">basePrice = show.price * count
+finalPrice = DiscountFactory.applyDiscount(...)</text>
+
+  <!-- Service -> BookingsRepo (save booking) -->
+  <line x1="395" y1="370" x2="960" y2="370" class="arrow" />
+  <text class="label" x="677" y="360" text-anchor="middle">BookingsRepo.save(Booking)</text>
+
+  <!-- Service -> BookingSeatsRepo (save mappings) -->
+  <line x1="395" y1="410" x2="1100" y2="410" class="arrow" />
+  <text class="label" x="747" y="400" text-anchor="middle">BookingSeatsRepo.save(mapping) [per seat]</text>
+
+  <!-- Service -> Controller (response) -->
+  <line x1="395" y1="450" x2="235" y2="450" class="arrow" />
+  <text class="label" x="315" y="440" text-anchor="middle">BookingResponse {booking_Id, totalPrice, status}</text>
+</svg>
